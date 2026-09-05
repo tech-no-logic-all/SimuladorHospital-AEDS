@@ -443,4 +443,20 @@ public class Grid {
         tem_enfermeira = false;
         tem_totem = false;
     }
+
+    public char[][] getMapaChar() {
+    return mapaChar;
+    }
+
+    public Gerador getGerador() {
+    return gerador;
+    }
+
+    public Totem getTotem() {
+    return totem;
+    }
+
+    public Removedor getRemovedor() {
+    return removedor;
+    }
 }

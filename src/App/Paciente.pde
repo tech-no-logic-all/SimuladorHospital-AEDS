@@ -135,7 +135,8 @@ public class Paciente {
 
         if (this.estado == EstadoPaciente.INDO_SAIDA) {
             if (chegouAoDestino()) {
-                this.estado = EstadoPaciente.FINALIZANDO;
+
+                this.estado = EstadoPaciente.INDO_SAIDA;;
                 listaPacientes.removerPorId(this.id);
             }
         }
