@@ -40,39 +40,8 @@ void setup() {
 void draw() {
     background(255);
 
-    if (!inicializado) {
-        try {
-            //vai ser chamado sempre que um mapa diferente for escolhido, para resetar o grid e desenhar o novo mapa
-            grid.inicializarGrid("data/mapa1.txt");
-            inicializado = true;
-            gerenciadorMovimento = new GerenciadorMovimento(grid.getMapaChar());
+    float tempoAtual = millis() / 1000.0;
 
-        } catch (MapaNaoFormatadoException e) {
-            println(e.getMessage());
-        }
-    }
-
-    if(inicializado) {
-        grid.desenharGrid();
-
-        float tempoAtual = millis() / 1000.0;
-
-        if (tempoAtual >= proximoSpawn) {
-            contadorPacientes++;
-            Paciente novoPaciente = new Paciente("P" + contadorPacientes);
-            
-            int linhaG = grid.getGerador().getLinha();
-            int colunaG = grid.getGerador().getColuna();
-            int linhaT = grid.getTotem().getLinha();
-            int colunaT = grid.getTotem().getColuna();
-
-            novoPaciente.setPosicao(linhaG, colunaG);
-            novoPaciente.setDestino(linhaT, colunaT);
-
-            gerenciadorMovimento.registrarPosicaoInicial(novoPaciente, linhaG, colunaG);
-            listaPacientes.adicionar(novoPaciente);
-
-            proximoSpawn = tempoAtual + geradorTempo.gerarTempoSpawn();
-        }
-    }
+    simulador.iniciarGrid();
+    simulador.atualizarEntidades(tempoAtual);
 }
