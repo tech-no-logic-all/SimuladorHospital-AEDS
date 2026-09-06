@@ -1,3 +1,5 @@
+float tempoEntreAtualizacoes = 3.0;
+
 public class SimuladorHospital {
 
     private Grid grid;
@@ -8,6 +10,7 @@ public class SimuladorHospital {
     private boolean inicializado = false;
     private int contadorPacientes = 0;
     private float proximoSpawn = 0;
+    private float tempoAtualizarSimulacao = 0;
 
     public SimuladorHospital() {
         grid = new Grid();
@@ -23,6 +26,7 @@ public class SimuladorHospital {
         proximoSpawn = geradorTempo.gerarTempoSpawn();
     }
 
+    //esse iniciarGrid acho q tem que receber uma string pro caminho do arquivo do mapa .txt
     public void iniciarGrid (Grid grid) {
 
         if (!inicializado) {
@@ -41,28 +45,42 @@ public class SimuladorHospital {
         grid.desenharGrid();
     }
 
-    public void atualizarEntidades(float tempoAtual) {
-        if (!inicializado) 
-        return;
+    private void atualizarEntidades(float tempoAtual) {
+
+        if (!inicializado) return;
 
         if (tempoAtual >= proximoSpawn) {
             contadorPacientes++;
             Paciente novoPaciente = new Paciente("P" + contadorPacientes);
 
+            //pra que serve essa condicao? 
+            //se for so pra verificar se o gerador e o totem existem, ja tem isso em Grid.pde
             if (grid.getGerador() != null && grid.getTotem() != null) {
-            int linhaG = grid.getGerador().getLinha();
-            int colunaG = grid.getGerador().getColuna();
-            int linhaT = grid.getTotem().getLinha();
-            int colunaT = grid.getTotem().getColuna();
+                int linhaG = grid.getGerador().getLinha();
+                int colunaG = grid.getGerador().getColuna();
+                int linhaT = grid.getTotem().getLinha();
+                int colunaT = grid.getTotem().getColuna();
 
-            novoPaciente.setPosicao(linhaG, colunaG);
-            novoPaciente.setDestino(linhaT, colunaT);
+                novoPaciente.setPosicao(linhaG, colunaG);
+                novoPaciente.setDestino(linhaT, colunaT);
 
-            gerenciadorMovimento.registrarPosicaoInicial(novoPaciente, linhaG, colunaG);
-            listaPacientes.adicionar(novoPaciente);
+                gerenciadorMovimento.registrarPosicaoInicial(novoPaciente, linhaG, colunaG);
+                listaPacientes.adicionar(novoPaciente);
 
-            proximoSpawn = tempoAtual + geradorTempo.gerarTempoSpawn();
+                proximoSpawn = tempoAtual + geradorTempo.gerarTempoSpawn();
+            }
         }
-
-
     }
+
+    public void atualizarSimulacao(float tempoAtual) {
+
+        if (tempoAtual >= tempoAtualizarSimulacao) {
+            Paciente[] pacientes = listaPacientes.listaPacientesParaArray();
+
+            gerenciadorMovimento.atualizarMovimentacao(pacientes);
+            atualizarEntidades(tempoAtual);
+
+            tempoAtualizarSimulacao = tempoAtual + tempoEntreAtualizacoes;
+        }
+    }
+}

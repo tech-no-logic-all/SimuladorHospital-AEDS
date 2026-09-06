@@ -12,6 +12,8 @@ GerenciadorMovimento gerenciadorMovimento;
 float proximoSpawn = 0;
 int contadorPacientes = 0;
 
+SimuladorHospital simulador;
+
 void setup() {
     
     size(800, 800);
@@ -25,6 +27,8 @@ void setup() {
     listaPacientes = new ListaPacientes();
 
     proximoSpawn = geradorTempo.gerarTempoSpawn();
+
+    simulador = new SimuladorHospital();
 
 
     /* 
@@ -44,6 +48,14 @@ void draw() {
 
     float tempoAtual = millis() / 1000.0;
 
-    simulador.iniciarGrid();
-    simulador.atualizarEntidades(tempoAtual);
+    //esse iniciarGrid acho q tem que mandar uma string pro caminho do arquivo do mapa .txt
+    //simulador.iniciarGrid();
+    
+    /*mudei esse metodo pra ser chamado dentro da própria classe SimuladorHospital
+    basicamente, aq agora vai ser chamado o metodo de atualizarSimulacao, pq ai ele cuida de todo o resto:
+    * atualiza entidades
+    * atualiza movimentacao
+    tudo com a verificacao de tempo */
+    //simulador.atualizarEntidades(tempoAtual);
+    simulador.atualizarSimulacao(tempoAtual);
 }

@@ -445,18 +445,18 @@ public class Grid {
     }
 
     public char[][] getMapaChar() {
-    return mapaChar;
+        return mapaChar;
     }
 
     public Gerador getGerador() {
-    return gerador;
+        return gerador;
     }
 
     public Totem getTotem() {
-    return totem;
+        return totem;
     }
 
     public Removedor getRemovedor() {
-    return removedor;
+        return removedor;
     }
 }

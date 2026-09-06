@@ -87,4 +87,19 @@ public static class ListaPacientes {
 
         return primeiro;   
     }
+
+    public Paciente[] listaPacientesParaArray() {
+        Paciente[] array = new Paciente[tamanho];
+        NoPaciente atual = inicio;
+
+        int indice = 0;
+
+        while (atual != null) {
+            array[indice] = atual.getPaciente();
+            atual = atual.getProximo();
+            indice++;
+        }
+
+        return array;
+    }
 }
