@@ -6,8 +6,8 @@ public class Grid {
     private Gerador gerador;
     private Totem totem; //decidi colocar apenas um totem no mapa, apesar de nao ser explicito nas instrucoes
     private Removedor removedor;
-    private Medico[] medico;
-    private Enfermeira[] enfermeira;
+    private Medico[] medicos;
+    private Enfermeira[] enfermeiras;
     
     private CelulasGrid[][] grid;
     private Cadeira[] cadeiras;
@@ -131,8 +131,8 @@ public class Grid {
             }
         }
 
-        medico = new Medico[qnt_medicos];
-        enfermeira = new Enfermeira[qnt_enfermeiras];
+        medicos = new Medico[qnt_medicos];
+        enfermeiras = new Enfermeira[qnt_enfermeiras];
         cadeiras = new Cadeira[qnt_cadeiras];
 
         for(i = 0; i < altura; i++) {
@@ -161,7 +161,7 @@ public class Grid {
                         grid[i][j].setFundo(chao_img);
                         grid[i][j].setAcessorio(medico_img);
 
-                        medico[contadorMedicos] = new Medico(i, j);
+                        medicos[contadorMedicos] = new Medico(i, j);
                         tem_medico = true;
                         contadorMedicos++;
                         break;
@@ -170,7 +170,7 @@ public class Grid {
                         grid[i][j].setFundo(chao_img);
                         grid[i][j].setAcessorio(enfermeira_img);
 
-                        enfermeira[contadorEnfermeiras] = new Enfermeira(i, j);
+                        enfermeiras[contadorEnfermeiras] = new Enfermeira(i, j);
                         tem_enfermeira = true;
                         contadorEnfermeiras++;
                         break;
@@ -336,13 +336,13 @@ public class Grid {
 
         // medicos e enfermeiras: o wavefront trata como parede (paciente nao pisa neles),
         // entao valida se pelo menos um vizinho de chao foi alcancado
-        for (int i = 0; i < medico.length; i++) {
-            if (!temVizinhoAlcancavel(medico[i].getLinha(), medico[i].getColuna(), distancias)) {
+        for (int i = 0; i < medicos.length; i++) {
+            if (!temVizinhoAlcancavel(medicos[i].getLinha(), medicos[i].getColuna(), distancias)) {
                 return false;
             }
         }
-        for (int i = 0; i < enfermeira.length; i++) {
-            if (!temVizinhoAlcancavel(enfermeira[i].getLinha(), enfermeira[i].getColuna(), distancias)) {
+        for (int i = 0; i < enfermeiras.length; i++) {
+            if (!temVizinhoAlcancavel(enfermeiras[i].getLinha(), enfermeiras[i].getColuna(), distancias)) {
                 return false;
             }
         }
@@ -458,5 +458,20 @@ public class Grid {
 
     public Removedor getRemovedor() {
         return removedor;
+    }
+
+    public Medico[] getMedicos() {
+        return medicos;
+    }
+
+    public Enfermeira[] getEnfermeiras() {
+        return enfermeiras;
+    }
+
+    public void mudarEstadoEnfermeira(int indice, EstadoEnfermeira novoEstado) {
+        
+        if(indice >= 0 && indice < enfermeiras.length) {
+            enfermeiras[indice].setEstado(novoEstado);
+        }
     }
 }

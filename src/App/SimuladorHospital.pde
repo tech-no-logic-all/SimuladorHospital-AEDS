@@ -109,4 +109,24 @@ public class SimuladorHospital {
             FilasPreferencial.adicionarPaciente(paciente);
         }
     }
+
+    public void chamarProximoTriagem() {
+        Enfermeira[] enfermeiras = grid.getEnfermeiras();
+
+        for(int i = 0; i < enfermeiras.length; i++) {
+            if(enfermeiras[i].estado == EstadoEnfermeira.LIVRE) {
+                Paciente paciente = FilasPreferencial.chamarProximo();
+
+                if (paciente != null) {
+                    enfermeiras[i].estado = EstadoEnfermeira.OCUPADA;
+                    paciente.setEstado(EstadoPaciente.INDO_TRIAGEM);
+
+                    paciente.setDestino(enfermeiras[i].getLinha(), enfermeiras[i].getColuna());
+                    paciente.getCadeiraAtual().setEstado(EstadoCadeira.LIVRE);
+                    paciente.setCadeiraAtual(null);
+                    break;
+                }
+            }   
+        }
+    }
 }

@@ -1,9 +1,11 @@
 public class Enfermeira {
     private int linha, coluna;
+    EstadoEnfermeira estado;
 
     public Enfermeira(int linha, int coluna) {
         this.linha = linha;
         this.coluna = coluna;
+        this.estado = EstadoEnfermeira.LIVRE;
     }
 
     public int getColuna() {
@@ -12,5 +14,9 @@ public class Enfermeira {
 
     public int getLinha() {
         return linha;
+    }
+
+    public void setEstado(EstadoEnfermeira estado) {
+        this.estado = estado;
     }
 }
