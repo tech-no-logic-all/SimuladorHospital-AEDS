@@ -12,6 +12,8 @@ public class SimuladorHospital {
     private float proximoSpawn = 0;
     private float tempoAtualizarSimulacao = 0;
 
+    
+
 
     public SimuladorHospital() {
         grid = new Grid();
@@ -97,6 +99,14 @@ public class SimuladorHospital {
                 paciente.setDestino(paciente.getCadeiraAtual().getLinha(), paciente.getCadeiraAtual().getColuna());
                 paciente.setEstado(EstadoPaciente.INDO_CADEIRA_TRIAGEM);
             }
+        }
+    }
+
+    public void processarChegadaCadeiraTriagem(Paciente paciente) {
+        if(paciente.getEstado() == EstadoPaciente.INDO_CADEIRA_TRIAGEM && paciente.chegouAoDestino()) {
+            paciente.getCadeiraAtual().setEstado(EstadoCadeira.OCUPADA);
+            paciente.setEstado(EstadoPaciente.AGUARDANDO_TRIAGEM);
+            FilasPreferencial.adicionarPaciente(paciente);
         }
     }
 }
