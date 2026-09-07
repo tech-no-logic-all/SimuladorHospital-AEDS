@@ -12,6 +12,7 @@ public class SimuladorHospital {
     private float proximoSpawn = 0;
     private float tempoAtualizarSimulacao = 0;
 
+
     public SimuladorHospital() {
         grid = new Grid();
         geradorTempo = new GeradorTempo();
@@ -81,6 +82,21 @@ public class SimuladorHospital {
             atualizarEntidades(tempoAtual);
 
             tempoAtualizarSimulacao = tempoAtual + tempoEntreAtualizacoes;
+        }
+    }
+
+    public void processarChegadaTotem(Paciente paciente) {
+        if(paciente.getEstado() == EstadoPaciente.INDO_TOTEM && paciente.chegouAoDestino()) {
+
+            int[][] distancias = calcularWavefront(paciente.getLinha(), paciente.getColuna(), grid.getMapaChar());
+            Cadeira cadeiras[] = grid.ordenarCadeirasPorDistancia(distancias);
+            
+            if(cadeiras.length > 0) {
+                paciente.setCadeiraAtual(cadeiras[0]);
+                paciente.getCadeiraAtual().setEstado(EstadoCadeira.RESERVADA);
+                paciente.setDestino(paciente.getCadeiraAtual().getLinha(), paciente.getCadeiraAtual().getColuna());
+                paciente.setEstado(EstadoPaciente.INDO_CADEIRA_TRIAGEM);
+            }
         }
     }
 }

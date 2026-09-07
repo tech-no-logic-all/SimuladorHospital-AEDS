@@ -18,6 +18,7 @@ public class Paciente {
     private int coluna;
     private int destinoLinha;
     private int destinoColuna;
+    private Cadeira cadeiraAtual;
 
     private EstadoPaciente estado;
     private float tempoInicioAtendimento;
@@ -102,6 +103,14 @@ public class Paciente {
 
     public int getDestinoColuna(){
         return destinoColuna;
+    }
+
+    public Cadeira getCadeiraAtual(){
+        return cadeiraAtual;
+    }
+
+    public void setCadeiraAtual(Cadeira cadeiraAtual){
+        this.cadeiraAtual = cadeiraAtual;
     }
 
     public boolean chegouAoDestino(){
