@@ -213,9 +213,9 @@ public class SimuladorHospital {
 
     public void processarFimTriagem(Paciente paciente, float tempoAtual) {
 
-        if(paciente.getEstado() == EstadoPaciente.EM_TRIAGEM && (paciente.getTempoInicioTriagem() + paciente.getDuracaoTriagem()) >= tempoAtual) {
+        if(paciente.getEstado() == EstadoPaciente.EM_TRIAGEM && (tempoAtual - paciente.getTempoInicioTriagem() >= paciente.getDuracaoTriagem())) {
 
-            ArvoreDeManchester.decideCorPrioridade(paciente);
+            paciente.setCorPrioridade() = ArvoreDeManchester.decideCorPrioridade(paciente);
                       
             for(int i = 0; i < enfermeiras.length; i++) {
                 if(enfermeiras[i].getEstado() == EstadoEnfermeira.OCUPADA) {
