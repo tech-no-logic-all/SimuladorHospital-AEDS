@@ -23,6 +23,8 @@ public class Paciente {
     private EstadoPaciente estado;
     private float tempoInicioAtendimento;
     private float duracaoAtendimento;
+    private float tempoInicioTriagem;
+    private float duracaoTriagem;
 
 
 
@@ -132,6 +134,12 @@ public class Paciente {
         this.tempoInicioAtendimento = tempoAtual;
         GeradorTempo gerador = new GeradorTempo();
         this.duracaoAtendimento = gerador.gerarTempoConsulta();
+    }
+
+    public void iniciarTriagem(float tempoAtual) {
+        this.tempoInicioTriagem = tempoAtual;
+        GeradorTempo gerador = new GeradorTempo();
+        this.duracaoTriagem = gerador.gerarTempoTriagem();
     }
 
     public void atualizar(float tempoAtual, Coordenada coordRemovedor, ListaPacientes listaPacientes) {

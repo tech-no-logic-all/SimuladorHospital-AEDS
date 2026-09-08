@@ -87,6 +87,7 @@ public class SimuladorHospital {
         }
     }
 
+
     public void processarChegadaTotem(Paciente paciente) {
         if(paciente.getEstado() == EstadoPaciente.INDO_TOTEM && paciente.chegouAoDestino()) {
 
@@ -197,6 +198,15 @@ public class SimuladorHospital {
                     }
                 }
             }   
+        }
+    }
+
+    public void processarChegadaTriagem(Paciente paciente, float tempoAtual) {
+
+        if(paciente.getEstado() == EstadoPaciente.INDO_TRIAGEM && paciente.chegouAoDestino()) {
+
+            paciente.setEstado(EstadoPaciente.EM_TRIAGEM);
+            paciente.iniciarTriagem(tempoAtual);
         }
     }
 }

@@ -29,17 +29,6 @@ void setup() {
     proximoSpawn = geradorTempo.gerarTempoSpawn();
 
     simulador = new SimuladorHospital();
-
-
-    /* 
-    
-    logica de manchester:
-        -> se existe um paciente no totem de atendimento  
-        -> chama metodo que passa pela arvore e retorna uma cor  
-        -> cor vira atributo de paciente
-        -> paciente vai pra fila de espera da consulta
-        
-    */
 }
 
 void draw() {
@@ -56,6 +45,7 @@ void draw() {
     * atualiza entidades
     * atualiza movimentacao
     tudo com a verificacao de tempo */
+    
     //simulador.atualizarEntidades(tempoAtual);
     simulador.atualizarSimulacao(tempoAtual);
 }
