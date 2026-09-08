@@ -1,11 +1,11 @@
 public class Enfermeira {
     private int linha, coluna;
-    EstadoEnfermeira estado;
+    EstadoProfissional estado;
 
     public Enfermeira(int linha, int coluna) {
         this.linha = linha;
         this.coluna = coluna;
-        this.estado = EstadoEnfermeira.LIVRE;
+        this.estado = EstadoProfissional.LIVRE;
     }
 
     public int getColuna() {
@@ -16,11 +16,11 @@ public class Enfermeira {
         return linha;
     }
 
-    public void setEstado(EstadoEnfermeira estado) {
+    public void setEstado(EstadoProfissional estado) {
         this.estado = estado;
     }
 
-    public EstadoEnfermeira getEstado() {
+    public EstadoProfissional getEstado() {
         return estado;
     }
 }

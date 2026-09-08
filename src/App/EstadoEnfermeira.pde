@@ -1,4 +1,4 @@
-public enum EstadoEnfermeira {
+public enum EstadoProfissional {
     LIVRE,
-    OCUPADA
+    OCUPADO
 }

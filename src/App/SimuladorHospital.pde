@@ -12,8 +12,8 @@ public class SimuladorHospital {
     private float proximoSpawn = 0;
     private float tempoAtualizarSimulacao = 0;
 
-    private Enfermeira[] enfermeiras = grid.getEnfermeiras();
-
+    private Enfermeira[] enfermeiras;
+    private Medico[] medicos;
     
 
 
@@ -24,6 +24,8 @@ public class SimuladorHospital {
         this.proximoSpawn = 0;
         this.contadorPacientes = 0;
         this.inicializado = false;
+        this.enfermeiras = grid.getEnfermeiras();
+        this.medicos = grid.getMedicos();
     }
 
     public void setup() {
@@ -113,16 +115,16 @@ public class SimuladorHospital {
         }
     }
 
-    public Coordenada celulaVizinhaEnfermeira(int[][] distancias, Enfermeira enfermeira) {
+    public Coordenada celulaVizinhaAtendimento(int[][] distancias, Coordenada coordenada) {
 
-        int linha = enfermeira.getLinha();
-        int coluna = enfermeira.getColuna();
+        int linha = coordenada.getL();
+        int coluna = coordenada.getC();
         int altura = grid.getAltura();
         int largura = grid.getLargura();
 
         int qntCoordenadasLivres = 0;
 
-        //conta as celulas vizinhas livres (que nao sao diagonais) da enfermeira
+        //conta as celulas vizinhas livres (que nao sao diagonais) da enfermeira/medico
         for (int i = -1; i <= 1; i++) {
             for(int j = -1; j <= 1; j++) {
                 int novaLinha = linha + i;
@@ -144,7 +146,7 @@ public class SimuladorHospital {
 
         int contador = 0;
 
-        //cria um objeto Coordenada para cada celula vizinha livre (que nao sao diagonais) da enfermeira
+        //cria um objeto Coordenada para cada celula vizinha livre (que nao sao diagonais) da enfermeira/medico
         for (int i = -1; i <= 1; i++) {
             for(int j = -1; j <= 1; j++) {
                 int novaLinha = linha + i;
@@ -159,7 +161,7 @@ public class SimuladorHospital {
             }
         }
 
-        //ordena as celulas vizinhas livres da enfermeira de acordo com a distancia do paciente 
+        //ordena as celulas vizinhas livres da enfermeira/medico de acordo com a distancia do paciente 
         for(int i = 0; i < qntCoordenadasLivres; i++) {
             int menor_indice = i;
             int menor_distancia = distancias[coordenadasLivre[i].getL()][coordenadasLivre[i].getC()];
@@ -184,18 +186,19 @@ public class SimuladorHospital {
     public void chamarProximoTriagem() {
         
         for(int i = 0; i < enfermeiras.length; i++) {
-            if(enfermeiras[i].estado == EstadoEnfermeira.LIVRE) {
+            if(enfermeiras[i].estado == EstadoProfissional.LIVRE) {
                 Paciente paciente = FilasPreferencial.chamarProximo();
 
                 if (paciente != null) {
 
                     int[][] distancias = calcularWavefront(paciente.getLinha(), paciente.getColuna(), grid.getMapaChar());
-                    Coordenada coordenadaLivre = celulaVizinhaEnfermeira(distancias, enfermeiras[i]);
+                    Coordenada coordenadaEnfermeira = new Coordenada(enfermeiras[i].getLinha(), enfermeiras[i].getColuna());
+                    Coordenada coordenadaLivre = celulaVizinhaAtendimento(distancias, coordenadaEnfermeira);
 
                     if (coordenadaLivre != null) {
                         paciente.setDestino(coordenadaLivre.getL(), coordenadaLivre.getC());
                         paciente.setEstado(EstadoPaciente.INDO_TRIAGEM);
-                        enfermeiras[i].setEstado(EstadoEnfermeira.OCUPADA);
+                        enfermeiras[i].setEstado(EstadoProfissional.OCUPADO);
                     }
                 }
             }   
@@ -218,14 +221,53 @@ public class SimuladorHospital {
             paciente.setCorPrioridade() = ArvoreDeManchester.decideCorPrioridade(paciente);
                       
             for(int i = 0; i < enfermeiras.length; i++) {
-                if(enfermeiras[i].getEstado() == EstadoEnfermeira.OCUPADA) {
-                    enfermeiras[i].setEstado(EstadoEnfermeira.LIVRE);
+                if(enfermeiras[i].getEstado() == EstadoProfissional.OCUPADO) {
+                    enfermeiras[i].setEstado(EstadoProfissional.LIVRE);
                 }
             }
 
             // escolhe nova cadeira
 
             paciente.setEstado(EstadoPaciente.INDO_CADEIRA_CONSULTA);
+        }
+    }
+
+    public void processarChegadaCadeiraConsulta(Paciente paciente) {
+        if(paciente.getEstado() == EstadoPaciente.INDO_CADEIRA_CONSULTA && paciente.chegouAoDestino()) {
+            paciente.setEstado(EstadoPaciente.AGUARDANDO_CONSULTA);
+            FilasPrioridade.adicionarPaciente(paciente);
+        }
+    }
+
+    public void chamarProximoConsulta() {
+
+        for(int i = 0; i < medicos.length; i++) {
+            if(medicos[i].getEstado() == EstadoProfissional.LIVRE) {
+                Paciente paciente = FilasPrioridade.chamarProximo();
+
+                if (paciente != null) {
+
+                    int[][] distancias = calcularWavefront(paciente.getLinha(), paciente.getColuna(), grid.getMapaChar());
+                    Coordenada coordenadaMedico = new Coordenada(medicos[i].getLinha(), medicos[i].getColuna());
+                    Coordenada coordenadaLivre = celulaVizinhaAtendimento(distancias, coordenadaMedico);
+
+                    if (coordenadaLivre != null) {
+                        paciente.setDestino(coordenadaLivre.getL(), coordenadaLivre.getC());
+                        paciente.setEstado(EstadoPaciente.INDO_CONSULTA);
+                        medicos[i].setEstado(EstadoProfissional.OCUPADO);
+                    }
+                }
+                
+            }
+        }
+    }
+
+    public void processarChegadaConsulta(Paciente paciente, float tempoAtual) {
+
+        if(paciente.getEstado() == EstadoPaciente.INDO_CONSULTA && paciente.chegouAoDestino()) {
+
+            paciente.setEstado(EstadoPaciente.EM_CONSULTA);
+            paciente.iniciarConsulta(tempoAtual);
         }
     }
 }
