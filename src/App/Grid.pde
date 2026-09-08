@@ -474,4 +474,12 @@ public class Grid {
             enfermeiras[indice].setEstado(novoEstado);
         }
     }
+
+    public int getAltura() {
+        return altura;
+    }
+
+    public int getLargura() {
+        return largura;
+    }
 }
