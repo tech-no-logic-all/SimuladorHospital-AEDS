@@ -19,4 +19,8 @@ public class Enfermeira {
     public void setEstado(EstadoEnfermeira estado) {
         this.estado = estado;
     }
+
+    public EstadoEnfermeira getEstado() {
+        return estado;
+    }
 }

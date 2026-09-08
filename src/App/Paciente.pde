@@ -142,6 +142,14 @@ public class Paciente {
         this.duracaoTriagem = gerador.gerarTempoTriagem();
     }
 
+    public float getTempoInicioTriagem() {
+        return tempoInicioTriagem;
+    }
+
+    public float getDuracaoTriagem() {
+        return duracaoTriagem;
+    }
+
     public void atualizar(float tempoAtual, Coordenada coordRemovedor, ListaPacientes listaPacientes) {
         if (this.estado == EstadoPaciente.EM_CONSULTA) {
             if (tempoAtual - this.tempoInicioAtendimento >= this.duracaoAtendimento) {

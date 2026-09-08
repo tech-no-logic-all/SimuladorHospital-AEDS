@@ -12,6 +12,8 @@ public class SimuladorHospital {
     private float proximoSpawn = 0;
     private float tempoAtualizarSimulacao = 0;
 
+    private Enfermeira[] enfermeiras = grid.getEnfermeiras();
+
     
 
 
@@ -180,8 +182,7 @@ public class SimuladorHospital {
     }
 
     public void chamarProximoTriagem() {
-        Enfermeira[] enfermeiras = grid.getEnfermeiras();
-
+        
         for(int i = 0; i < enfermeiras.length; i++) {
             if(enfermeiras[i].estado == EstadoEnfermeira.LIVRE) {
                 Paciente paciente = FilasPreferencial.chamarProximo();
@@ -207,6 +208,24 @@ public class SimuladorHospital {
 
             paciente.setEstado(EstadoPaciente.EM_TRIAGEM);
             paciente.iniciarTriagem(tempoAtual);
+        }
+    }
+
+    public void processarFimTriagem(Paciente paciente, float tempoAtual) {
+
+        if(paciente.getEstado() == EstadoPaciente.EM_TRIAGEM && (paciente.getTempoInicioTriagem() + paciente.getDuracaoTriagem()) >= tempoAtual) {
+
+            ArvoreDeManchester.decideCorPrioridade(paciente);
+                      
+            for(int i = 0; i < enfermeiras.length; i++) {
+                if(enfermeira[i].getEstado == OCUPADA) {
+                    enfermeira[i].setEstado(LIVRE);
+                }
+            }
+
+            // escolhe nova cadeira
+
+            paciente.setEstado(EstadoPaciente.INDO_CADEIRA_CONSULTA);
         }
     }
 }
