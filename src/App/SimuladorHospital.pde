@@ -218,8 +218,8 @@ public class SimuladorHospital {
             ArvoreDeManchester.decideCorPrioridade(paciente);
                       
             for(int i = 0; i < enfermeiras.length; i++) {
-                if(enfermeira[i].getEstado == OCUPADA) {
-                    enfermeira[i].setEstado(LIVRE);
+                if(enfermeiras[i].getEstado() == EstadoEnfermeira.OCUPADA) {
+                    enfermeiras[i].setEstado(EstadoEnfermeira.LIVRE);
                 }
             }
 
