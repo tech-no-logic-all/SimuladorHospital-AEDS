@@ -293,7 +293,7 @@ public class SimuladorHospital {
 
     public void processarFimTriagem(Paciente paciente) {
 
-        if(paciente.getEstado() == EstadoPaciente.EM_TRIAGEM && (tempoAtual - paciente.getTempoInicioTriagem() >= paciente.getDuracaoTriagem())) {
+        if(paciente.getEstado() == EstadoPaciente.EM_TRIAGEM && (tempoSimulacao - paciente.getTempoInicioTriagem() >= paciente.getDuracaoTriagem())) {
 
             Cadeira cadeiraAnterior = paciente.getCadeiraAtual();
             EstadoCadeira estadoAnterior = null;
