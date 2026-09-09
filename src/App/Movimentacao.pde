@@ -35,17 +35,38 @@ public class GerenciadorMovimento{
         if(p.chegouAoDestino()){
             return null;
         }
-        int[][] distancias = calcularWavefront(p.getDestinoLinha(), p.getDestinoColuna(), mapaBase); //salva na matriz a onda pra saber as distancias
+        char[][] mapaMovimentacao = copiarMapaComCadeirasOcupadas(p);
+        int[][] distancias = calcularWavefront(p.getDestinoLinha(), p.getDestinoColuna(), mapaMovimentacao); //salva na matriz a onda pra saber as distancias
         Coordenada[] candidatos = vizinhosOrdenadosPorDistancia(p.getLinha(), p.getColuna(), distancias); //ordena as casas vizinhas pra saber a mais proxima do destino
+        int distanciaAtual = distancias[p.getLinha()][p.getColuna()];
         if(candidatos.length == 0){
             return null; //nao tem pra onde ir
         }
         for(int i=0; i<candidatos.length; i++){ //serve pra conferir se a casa mais top ja esta ocupada
-            if(ocupacao[candidatos[i].getL()][candidatos[i].getC()] == null){
+            int distanciaCandidato = distancias[candidatos[i].getL()][candidatos[i].getC()];
+            if(distanciaCandidato < distanciaAtual && ocupacao[candidatos[i].getL()][candidatos[i].getC()] == null){
                 return candidatos[i]; //se nao tiver retorna ela
             }
         }
         return null; //se sair do for e nao tiver nenhuma livre ele fica parado (null)
+    }
+
+    private char[][] copiarMapaComCadeirasOcupadas(Paciente pacienteEmMovimento) {
+        char[][] copia = new char[numLinhas][numColunas];
+
+        for (int linha = 0; linha < numLinhas; linha++) {
+            for (int coluna = 0; coluna < numColunas; coluna++) {
+                copia[linha][coluna] = mapaBase[linha][coluna];
+
+                if (mapaBase[linha][coluna] == 'A'
+                    && ocupacao[linha][coluna] != null
+                    && ocupacao[linha][coluna] != pacienteEmMovimento) {
+                    copia[linha][coluna] = '#';
+                }
+            }
+        }
+
+        return copia;
     }
 
     void atualizarMovimentacao(Paciente[] pacientesAtivos) {
