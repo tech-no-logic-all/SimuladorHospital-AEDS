@@ -3,8 +3,10 @@ String[] mapasDisponiveis;
 int mapaSelecionado = -1;
 
 void carregarListaDeMapas() {
-    File pastaData = new File("data");
+    File pastaData = new File(dataPath(""));
     String[] arquivos = pastaData.list();
+    if (arquivos == null) arquivos = new String[0];
+    java.util.Arrays.sort(arquivos);
 
     int total = 0;
     for (int i = 0; i < arquivos.length; i++) {
@@ -17,7 +19,7 @@ void carregarListaDeMapas() {
     int indice = 0;
     for (int i = 0; i < arquivos.length; i++) {
         if (arquivos[i].endsWith(".txt")) { //tira o .txt dos nomes
-            mapasDisponiveis[indice] = arquivos[i].replace(".txt", "");
+            mapasDisponiveis[indice] = arquivos[i].substring(0, arquivos[i].length() - 4);
             indice++;
         }
     }
@@ -158,8 +160,12 @@ void tratarCliqueMenuPausa(int mx, int my) {
         // Resetar
         String caminho = "data/" + mapasDisponiveis[mapaSelecionado] + ".txt";
         simulador.reiniciarSimulacao(caminho);
-        simulador.iniciarSimulacao();
-        estadoAtual = EstadoJogo.SIMULACAO_MAPA;
+        if (simulador.estaInicializado()) {
+            simulador.iniciarSimulacao();
+            estadoAtual = EstadoJogo.SIMULACAO_MAPA;
+        } else {
+            estadoAtual = EstadoJogo.MENU_PRINCIPAL;
+        }
 
     } else if (dentroBotao(mx, my, cx, height / 2 + 80, bw, bh)) {
         // Voltar ao Menu Inicial

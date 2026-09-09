@@ -6,7 +6,7 @@ public enum EstadoJogo {
     FINALIZANDO
 }
 
-float tempoEntreAtualizacoes = 3.0;
+float tempoEntreAtualizacoes = 0.5;
 
 public class SimuladorHospital {
 
@@ -43,29 +43,8 @@ public class SimuladorHospital {
         grid.inicializarImagens();
     }
 
-    //esse iniciarGrid acho q tem que receber uma string pro caminho do arquivo do mapa .txt
-    public void iniciarGrid (String caminhoMapa) {
-
-        if (!inicializado) {
-
-            try {
-                //vai ser chamado sempre que um mapa diferente for escolhido, para resetar o grid e desenhar o novo mapa
-                grid.inicializarGrid(caminhoMapa);
-                gerenciadorMovimento = new GerenciadorMovimento(grid.getMapaChar());
-                inicializado = true;
-
-                this.enfermeiras = grid.getEnfermeiras();
-                this.medicos = grid.getMedicos();
-
-                FilasPreferencial.preencheFilas();
-                FilasPrioridade.preencheFilas();
-
-            } catch (MapaNaoFormatadoException e) {
-                println(e.getMessage());
-                return;
-            }   
-        }
-        grid.desenharGrid();
+    public void iniciarGrid(String caminhoMapa) {
+        reiniciarSimulacao(caminhoMapa);
     }
 
     //chamado quando o botão de iniciar simulação for clicado
@@ -92,6 +71,7 @@ public class SimuladorHospital {
     }
 
     public void reiniciarSimulacao(String caminhoMapa) {
+        resetarRelogio();
         inicializado = false;      // permite reconstruir o grid do zero
         grid.resetarGrid();
 
@@ -109,6 +89,7 @@ public class SimuladorHospital {
         this.enfermeiras = grid.getEnfermeiras();
         this.medicos = grid.getMedicos();
 
+        ArvoreDeManchester.preencheArvore();
         FilasPreferencial.preencheFilas();
         FilasPrioridade.preencheFilas();
 
@@ -153,6 +134,7 @@ public class SimuladorHospital {
                 int linhaT = grid.getTotem().getLinha();
                 int colunaT = grid.getTotem().getColuna();
 
+                if (!gerenciadorMovimento.estaLivre(linhaG, colunaG)) return;
                 contadorPacientes++;
 
                 novoPaciente.setPosicao(linhaG, colunaG);
@@ -203,7 +185,7 @@ public class SimuladorHospital {
             int[][] distancias = calcularWavefront(paciente.getLinha(), paciente.getColuna(), grid.getMapaChar());
             Cadeira cadeiras[] = grid.ordenarCadeirasPorDistancia(distancias);
             
-            if(cadeiras.length > 0) {
+            if(cadeiras.length > 0 && grid.distanciaReal(cadeiras[0], distancias) != Integer.MAX_VALUE) {
                 paciente.setCadeiraAtual(cadeiras[0]);
                 paciente.getCadeiraAtual().setEstado(EstadoCadeira.RESERVADA);
                 paciente.setDestino(paciente.getCadeiraAtual().getLinha(), paciente.getCadeiraAtual().getColuna());
@@ -355,6 +337,7 @@ public class SimuladorHospital {
 
     public void processarChegadaCadeiraConsulta(Paciente paciente) {
         if(paciente.getEstado() == EstadoPaciente.INDO_CADEIRA_CONSULTA && paciente.chegouAoDestino()) {
+            paciente.getCadeiraAtual().setEstado(EstadoCadeira.OCUPADA);
             paciente.setEstado(EstadoPaciente.AGUARDANDO_CONSULTA);
             FilasPrioridade.adicionarPaciente(paciente);
         }
@@ -376,6 +359,7 @@ public class SimuladorHospital {
                         paciente.setDestino(coordenadaLivre.getL(), coordenadaLivre.getC());
                         paciente.setEstado(EstadoPaciente.INDO_CONSULTA);
                         medicos[i].setEstado(EstadoProfissional.OCUPADO);
+                        paciente.setIndiceMedico(i);
                     }
                 }
                 
@@ -389,6 +373,10 @@ public class SimuladorHospital {
 
             paciente.setEstado(EstadoPaciente.EM_CONSULTA);
             paciente.iniciarConsulta(tempoSimulacao);
+            if (paciente.getCadeiraAtual() != null) {
+                paciente.getCadeiraAtual().setEstado(EstadoCadeira.LIVRE);
+                paciente.setCadeiraAtual(null);
+            }
         }
     }
 
@@ -407,7 +395,16 @@ public class SimuladorHospital {
                 Coordenada coordenadaRemovedor =
                     new Coordenada(grid.getRemovedor().getLinha(), grid.getRemovedor().getColuna());
 
-                paciente.atualizar(tempoSimulacao, coordenadaRemovedor, listaPacientes);
+                if (paciente.consultaTerminou(tempoSimulacao)) {
+                    medicos[paciente.getIndiceMedico()].setEstado(EstadoProfissional.LIVRE);
+                    paciente.setIndiceMedico(-1);
+                    paciente.setEstado(EstadoPaciente.INDO_SAIDA);
+                    paciente.setDestino(coordenadaRemovedor.getL(), coordenadaRemovedor.getC());
+                }
+                if (paciente.getEstado() == EstadoPaciente.INDO_SAIDA && paciente.chegouAoDestino()) {
+                    gerenciadorMovimento.removerPaciente(paciente);
+                    listaPacientes.removerPorId(paciente.getId());
+                }
             }
         }
 
@@ -444,6 +441,8 @@ public class SimuladorHospital {
     }
 
     public void desenharGrid() {
+        if (!inicializado) return;
         grid.desenharGrid();
+        grid.desenharPacientes(listaPacientes.listaPacientesParaArray());
     }
 }

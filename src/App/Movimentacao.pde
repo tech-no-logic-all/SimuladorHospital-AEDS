@@ -14,8 +14,21 @@ public class GerenciadorMovimento{
     }
 
     public void registrarPosicaoInicial(Paciente p, int linha, int coluna){
+        if (!estaLivre(linha, coluna)) {
+            throw new IllegalStateException("Celula de entrada ocupada.");
+        }
         p.setPosicao(linha, coluna);
         ocupacao[linha][coluna] = p;
+    }
+
+    public boolean estaLivre(int linha, int coluna) {
+        return ocupacao[linha][coluna] == null;
+    }
+
+    public void removerPaciente(Paciente p) {
+        if (ocupacao[p.getLinha()][p.getColuna()] == p) {
+            ocupacao[p.getLinha()][p.getColuna()] = null;
+        }
     }
 
     public Coordenada calcularIntencao(Paciente p){
@@ -84,7 +97,7 @@ public class GerenciadorMovimento{
                                     indiceOcup = k;
                                 }
                             }
-                            if(!podeMover[indiceOcup]){ //olha se ele vai sair de la
+                            if(indiceOcup == -1 || !podeMover[indiceOcup]){ //olha se ele vai sair de la
                                 podeMover[i] = false; //se ele nao vai, voce nao move
                                 mudou = true;
                             }

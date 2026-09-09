@@ -20,6 +20,7 @@ public class Paciente {
     private int destinoColuna;
     private Cadeira cadeiraAtual;
     private int indiceEnfermeira = -1;
+    private int indiceMedico = -1;
 
     private EstadoPaciente estado;
     private float tempoInicioAtendimento;
@@ -41,11 +42,11 @@ public class Paciente {
         }
     }
 
-    private int getIndiceEnfermeira() {
+    public int getIndiceEnfermeira() {
         return indiceEnfermeira;
     }
 
-    private void setIndiceEnfermeira(int indiceEnfermeira) {
+    public void setIndiceEnfermeira(int indiceEnfermeira) {
         this.indiceEnfermeira = indiceEnfermeira;
     }
 
@@ -159,20 +160,12 @@ public class Paciente {
         return duracaoTriagem;
     }
 
-    public void atualizar(float tempoSimulacao, Coordenada coordRemovedor, ListaPacientes listaPacientes) {
-        if (this.estado == EstadoPaciente.EM_CONSULTA) {
-            if (tempoSimulacao - this.tempoInicioAtendimento >= this.duracaoAtendimento) {
-                this.estado = EstadoPaciente.INDO_SAIDA;
-                setDestino(coordRemovedor.linha, coordRemovedor.coluna);
-            }
-        }
+    public int getIndiceMedico() { return indiceMedico; }
 
-        if (this.estado == EstadoPaciente.INDO_SAIDA) {
-            if (chegouAoDestino()) {
+    public void setIndiceMedico(int indiceMedico) { this.indiceMedico = indiceMedico; }
 
-                this.estado = EstadoPaciente.INDO_SAIDA;;
-                listaPacientes.removerPorId(this.id);
-            }
-        }
+    public boolean consultaTerminou(float tempoSimulacao) {
+        return estado == EstadoPaciente.EM_CONSULTA &&
+            tempoSimulacao - tempoInicioAtendimento >= duracaoAtendimento;
     }
 }

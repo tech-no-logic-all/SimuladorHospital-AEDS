@@ -27,6 +27,8 @@ public class Grid {
     private PImage enfermeira_img = new PImage();
     private PImage medico_img = new PImage();
     private PImage totem_img = new PImage();
+    private PImage pacienteNormalImg, pacientePreferencialImg;
+    private PImage[] pacientesPrioridadeImg = new PImage[5];
 
     void inicializarImagens() {
         chao_img = loadImage("tilefloor.png");
@@ -37,6 +39,12 @@ public class Grid {
         medico_img = loadImage("doctor.png");
         enfermeira_img = loadImage("nurse.png");
         totem_img = loadImage("totem.png");
+        pacienteNormalImg = loadImage("paciente_normal.png");
+        pacientePreferencialImg = loadImage("paciente_prioritario.png");
+        String[] cores = {"vermelho", "laranja", "amarelo", "verde", "azul"};
+        for (int i = 0; i < cores.length; i++) {
+            pacientesPrioridadeImg[i] = loadImage("paciente_" + cores[i] + ".png");
+        }
     }
 
     void inicializarGrid(String caminhoMapa) throws MapaNaoFormatadoException {
@@ -44,20 +52,23 @@ public class Grid {
         int contadorMedicos = 0, contadorEnfermeiras = 0, contadorCadeiras = 0;
         int qnt_medicos = 0, qnt_enfermeiras = 0, qnt_cadeiras = 0;
         
+        resetarGrid();
         String[] linhasMapa = loadStrings(caminhoMapa);
-
-        try {
-            String[] dimensoes = split(linhasMapa[0], ' ');
-            altura = int(dimensoes[0]);
-            largura = int(dimensoes[1]);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            //preferi tratar assim porque, nesse caso, o mapa tambem nao esta formatado como deveria
+        if (linhasMapa == null || linhasMapa.length < 2) {
             throw new MapaNaoFormatadoException();
         }
-
-        //se a qnt de linhas nao bater com o que foi declarado na primeira linha,
-        //lanca a excecao
-        if(altura != linhasMapa.length - 1) {
+        try {
+            String[] dimensoes = linhasMapa[0].trim().split("\\s+");
+            if (dimensoes.length != 2) throw new NumberFormatException();
+            altura = Integer.parseInt(dimensoes[0]);
+            largura = Integer.parseInt(dimensoes[1]);
+            if (altura <= 0 || largura <= 0 || altura != linhasMapa.length - 1) {
+                throw new NumberFormatException();
+            }
+            for (int linha = 1; linha < linhasMapa.length; linha++) {
+                if (linhasMapa[linha].length() != largura) throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
             throw new MapaNaoFormatadoException();
         }
 
@@ -216,7 +227,7 @@ public class Grid {
             }
         }
 
-        if(!tem_gerador || !tem_removedor || !tem_medico || !tem_enfermeira || !tem_totem) {
+        if(!tem_gerador || !tem_removedor || !tem_medico || !tem_enfermeira || !tem_totem || cadeiras.length == 0) {
             throw new MapaNaoFormatadoException();
         }
 
@@ -316,6 +327,18 @@ public class Grid {
                         break;
                 }
             }
+        }
+    }
+
+    public void desenharPacientes(Paciente[] pacientes) {
+        for (int i = 0; i < pacientes.length; i++) {
+            Paciente paciente = pacientes[i];
+            PImage imagem = paciente.getPreferencial() ? pacientePreferencialImg : pacienteNormalImg;
+            if (paciente.getCorPrioridade() != null) {
+                imagem = pacientesPrioridadeImg[paciente.getCorPrioridade().ordinal()];
+            }
+            image(imagem, paciente.getColuna() * largura_celula,
+                paciente.getLinha() * altura_celula, largura_celula, altura_celula);
         }
     }
 
@@ -432,6 +455,12 @@ public class Grid {
     //chamar quando um novo mapa for escolhido
     public void resetarGrid() {
         grid = null;
+        mapaChar = null;
+        gerador = null;
+        totem = null;
+        removedor = null;
+        medicos = null;
+        enfermeiras = null;
         cadeiras = null;
         largura = 0;
         altura = 0;

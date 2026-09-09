@@ -9,6 +9,7 @@ public static class FilasPreferencial {
 
 
     public static void preencheFilas() {
+        preferenciaisAtendidos = 0;
         for(int i = 0; i < filas.length; i++) {
             filas[i] = new ListaPacientes();
         }
