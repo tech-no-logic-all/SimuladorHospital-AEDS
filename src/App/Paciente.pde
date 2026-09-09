@@ -19,6 +19,7 @@ public class Paciente {
     private int destinoLinha;
     private int destinoColuna;
     private Cadeira cadeiraAtual;
+    private int indiceEnfermeira = -1;
 
     private EstadoPaciente estado;
     private float tempoInicioAtendimento;
@@ -38,6 +39,14 @@ public class Paciente {
         } else {
             preferencial = false;
         }
+    }
+
+    private int getIndiceEnfermeira() {
+        return indiceEnfermeira;
+    }
+
+    private void setIndiceEnfermeira(int indiceEnfermeira) {
+        this.indiceEnfermeira = indiceEnfermeira;
     }
 
     

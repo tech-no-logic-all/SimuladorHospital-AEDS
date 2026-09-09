@@ -24,8 +24,6 @@ public class SimuladorHospital {
         this.proximoSpawn = 0;
         this.contadorPacientes = 0;
         this.inicializado = false;
-        this.enfermeiras = grid.getEnfermeiras();
-        this.medicos = grid.getMedicos();
     }
 
     public void setup() {
@@ -43,6 +41,9 @@ public class SimuladorHospital {
                 grid.inicializarGrid("data/mapa1.txt");
                 gerenciadorMovimento = new GerenciadorMovimento(grid.getMapaChar());
                 inicializado = true;
+
+                this.enfermeiras = grid.getEnfermeiras();
+                this.medicos = grid.getMedicos();
 
             } catch (MapaNaoFormatadoException e) {
                 println(e.getMessage());
@@ -183,11 +184,11 @@ public class SimuladorHospital {
         return coordenadasLivre[0];
     }
 
-    public void chamarProximoTriagem() {
+    public void chamarProximoTriagem(Paciente paciente) {
         
         for(int i = 0; i < enfermeiras.length; i++) {
             if(enfermeiras[i].estado == EstadoProfissional.LIVRE) {
-                Paciente paciente = FilasPreferencial.chamarProximo();
+                paciente = FilasPreferencial.chamarProximo();
 
                 if (paciente != null) {
 
@@ -199,6 +200,7 @@ public class SimuladorHospital {
                         paciente.setDestino(coordenadaLivre.getL(), coordenadaLivre.getC());
                         paciente.setEstado(EstadoPaciente.INDO_TRIAGEM);
                         enfermeiras[i].setEstado(EstadoProfissional.OCUPADO);
+                        paciente.setIndiceEnfermeira(i);
                     }
                 }
             }   
@@ -218,14 +220,10 @@ public class SimuladorHospital {
 
         if(paciente.getEstado() == EstadoPaciente.EM_TRIAGEM && (tempoAtual - paciente.getTempoInicioTriagem() >= paciente.getDuracaoTriagem())) {
 
-            paciente.setCorPrioridade() = ArvoreDeManchester.decideCorPrioridade(paciente);
-                      
-            for(int i = 0; i < enfermeiras.length; i++) {
-                if(enfermeiras[i].getEstado() == EstadoProfissional.OCUPADO) {
-                    enfermeiras[i].setEstado(EstadoProfissional.LIVRE);
-                }
-            }
-
+            paciente.setCorPrioridade(ArvoreDeManchester.decideCorPrioridade(paciente));
+            enfermeiras[paciente.getIndiceEnfermeira()].setEstado(EstadoProfissional.LIVRE);
+            paciente.setIndiceEnfermeira(-1);
+            
             // escolhe nova cadeira
 
             paciente.setEstado(EstadoPaciente.INDO_CADEIRA_CONSULTA);
