@@ -220,12 +220,31 @@ public class SimuladorHospital {
 
         if(paciente.getEstado() == EstadoPaciente.EM_TRIAGEM && (tempoAtual - paciente.getTempoInicioTriagem() >= paciente.getDuracaoTriagem())) {
 
+            Cadeira cadeiraAnterior = paciente.getCadeiraAtual();
+            EstadoCadeira estadoAnterior = null;
+            if (cadeiraAnterior != null) {
+                estadoAnterior = cadeiraAnterior.getEstado();
+                cadeiraAnterior.setEstado(EstadoCadeira.LIVRE);
+            }
+
+            int[][] distancias = calcularWavefront(paciente.getLinha(), paciente.getColuna(), grid.getMapaChar());
+            Cadeira[] cadeiras = grid.ordenarCadeirasPorDistancia(distancias);
+
+            // Aguarda uma cadeira livre e alcancavel antes de encerrar a triagem.
+            if (cadeiras.length == 0 || distancias[cadeiras[0].getLinha()][cadeiras[0].getColuna()] == -1) {
+                if (cadeiraAnterior != null) {
+                    cadeiraAnterior.setEstado(estadoAnterior);
+                }
+                return;
+            }
+
             paciente.setCorPrioridade(ArvoreDeManchester.decideCorPrioridade(paciente));
             enfermeiras[paciente.getIndiceEnfermeira()].setEstado(EstadoProfissional.LIVRE);
             paciente.setIndiceEnfermeira(-1);
-            
-            // escolhe nova cadeira
 
+            paciente.setCadeiraAtual(cadeiras[0]);
+            paciente.getCadeiraAtual().setEstado(EstadoCadeira.RESERVADA);
+            paciente.setDestino(paciente.getCadeiraAtual().getLinha(), paciente.getCadeiraAtual().getColuna());
             paciente.setEstado(EstadoPaciente.INDO_CADEIRA_CONSULTA);
         }
     }
