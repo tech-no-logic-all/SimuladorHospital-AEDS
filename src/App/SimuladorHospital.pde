@@ -44,7 +44,7 @@ public class SimuladorHospital {
     }
 
     //esse iniciarGrid acho q tem que receber uma string pro caminho do arquivo do mapa .txt
-    public void iniciarGrid (Grid grid) {
+    public void iniciarGrid (String caminhoMapa) {
 
         if (!inicializado) {
 
