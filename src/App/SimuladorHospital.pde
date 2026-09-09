@@ -442,4 +442,8 @@ public class SimuladorHospital {
     public boolean estaInicializado() {
         return inicializado;
     }
+
+    public void desenharGrid() {
+        grid.desenharGrid();
+    }
 }

@@ -1,7 +1,5 @@
 NoManchester[] ArvoreManchester;
 
-Grid grid;
-
 //apenas teste, talvez a logica deva ser alterada
 boolean inicializado = false;
 
@@ -29,6 +27,8 @@ void setup() {
     proximoSpawn = geradorTempo.gerarTempoSpawn();
 
     simulador = new SimuladorHospital();
+
+    carregarListaDeMapas();
 }
 
 void draw() {
