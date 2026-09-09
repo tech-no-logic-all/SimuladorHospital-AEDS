@@ -1,3 +1,11 @@
+public enum EstadoJogo {
+    MENU_PRINCIPAL,
+    SIMULACAO_MAPA,
+    TELA_TRIAGEM,
+    PAUSA,
+    FINALIZANDO
+}
+
 float tempoEntreAtualizacoes = 3.0;
 
 public class SimuladorHospital {
@@ -14,7 +22,6 @@ public class SimuladorHospital {
 
     private Enfermeira[] enfermeiras;
     private Medico[] medicos;
-    
 
 
     public SimuladorHospital() {
@@ -53,9 +60,9 @@ public class SimuladorHospital {
         grid.desenharGrid();
     }
 
-    private void atualizarEntidades(float tempoAtual) {
-
-        if (!inicializado) return;
+    public void atualizarEntidades(float tempoAtual) {
+        if (!inicializado) 
+        return;
 
         if (tempoAtual >= proximoSpawn) {
             contadorPacientes++;
