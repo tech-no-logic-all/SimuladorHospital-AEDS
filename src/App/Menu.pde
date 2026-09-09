@@ -169,6 +169,7 @@ void tratarCliqueMenuPausa(int mx, int my) {
 
     } else if (dentroBotao(mx, my, cx, height / 2 + 80, bw, bh)) {
         // Voltar ao Menu Inicial
+        simulador.limparSimulacao();
         estadoAtual = EstadoJogo.MENU_PRINCIPAL;
         mapaSelecionado = -1;
     }

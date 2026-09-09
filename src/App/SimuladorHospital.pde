@@ -70,6 +70,19 @@ public class SimuladorHospital {
         pausado = false;
     }
 
+    public void limparSimulacao() {
+        resetarRelogio();
+        inicializado = false;
+        contadorPacientes = 0;
+        listaPacientes = new ListaPacientes();
+        FilasPreferencial.preencheFilas();
+        FilasPrioridade.preencheFilas();
+        gerenciadorMovimento = null;
+        enfermeiras = null;
+        medicos = null;
+        grid.resetarGrid();
+    }
+
     public void reiniciarSimulacao(String caminhoMapa) {
         resetarRelogio();
         inicializado = false;      // permite reconstruir o grid do zero
