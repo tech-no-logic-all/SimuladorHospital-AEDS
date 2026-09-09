@@ -50,12 +50,15 @@ public class SimuladorHospital {
 
             try {
                 //vai ser chamado sempre que um mapa diferente for escolhido, para resetar o grid e desenhar o novo mapa
-                grid.inicializarGrid("data/mapa1.txt");
+                grid.inicializarGrid(caminhoMapa);
                 gerenciadorMovimento = new GerenciadorMovimento(grid.getMapaChar());
                 inicializado = true;
 
                 this.enfermeiras = grid.getEnfermeiras();
                 this.medicos = grid.getMedicos();
+
+                FilasPreferencial.preencheFilas();
+                FilasPrioridade.preencheFilas();
 
             } catch (MapaNaoFormatadoException e) {
                 println(e.getMessage());
@@ -86,6 +89,32 @@ public class SimuladorHospital {
 
         relogioIniciado = true;
         pausado = false;
+    }
+
+    public void reiniciarSimulacao(String caminhoMapa) {
+        inicializado = false;      // permite reconstruir o grid do zero
+        grid.resetarGrid();
+
+        try {
+            grid.inicializarGrid(caminhoMapa);
+        } catch (MapaNaoFormatadoException e) {
+            println(e.getMessage());
+            return;
+        }
+
+        gerenciadorMovimento = new GerenciadorMovimento(grid.getMapaChar());
+        listaPacientes = new ListaPacientes();
+        contadorPacientes = 0;
+
+        this.enfermeiras = grid.getEnfermeiras();
+        this.medicos = grid.getMedicos();
+
+        FilasPreferencial.preencheFilas();
+        FilasPrioridade.preencheFilas();
+
+        inicializado = true;
+
+        resetarRelogio();
     }
 
     //quando o botão de pausar simulação for clicado
@@ -408,5 +437,9 @@ public class SimuladorHospital {
 
     public float getTempoSimulacao() {
         return tempoSimulacao;
+    }
+
+    public boolean estaInicializado() {
+        return inicializado;
     }
 }
