@@ -468,7 +468,7 @@ public class Grid {
         return enfermeiras;
     }
 
-    public void mudarEstadoEnfermeira(int indice, EstadoEnfermeira novoEstado) {
+    public void mudarEstadoEnfermeira(int indice, EstadoProfissional novoEstado) {
         
         if(indice >= 0 && indice < enfermeiras.length) {
             enfermeiras[indice].setEstado(novoEstado);

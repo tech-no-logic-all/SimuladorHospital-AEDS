@@ -139,14 +139,14 @@ public class Paciente {
         this.estado = estado;
     }
 
-    public void iniciarConsulta(float tempoAtual) {
-        this.tempoInicioAtendimento = tempoAtual;
+    public void iniciarConsulta(float tempoSimulacao) {
+        this.tempoInicioAtendimento = tempoSimulacao;
         GeradorTempo gerador = new GeradorTempo();
         this.duracaoAtendimento = gerador.gerarTempoConsulta();
     }
 
-    public void iniciarTriagem(float tempoAtual) {
-        this.tempoInicioTriagem = tempoAtual;
+    public void iniciarTriagem(float tempoSimulacao) {
+        this.tempoInicioTriagem = tempoSimulacao;
         GeradorTempo gerador = new GeradorTempo();
         this.duracaoTriagem = gerador.gerarTempoTriagem();
     }
@@ -159,9 +159,9 @@ public class Paciente {
         return duracaoTriagem;
     }
 
-    public void atualizar(float tempoAtual, Coordenada coordRemovedor, ListaPacientes listaPacientes) {
+    public void atualizar(float tempoSimulacao, Coordenada coordRemovedor, ListaPacientes listaPacientes) {
         if (this.estado == EstadoPaciente.EM_CONSULTA) {
-            if (tempoAtual - this.tempoInicioAtendimento >= this.duracaoAtendimento) {
+            if (tempoSimulacao - this.tempoInicioAtendimento >= this.duracaoAtendimento) {
                 this.estado = EstadoPaciente.INDO_SAIDA;
                 setDestino(coordRemovedor.linha, coordRemovedor.coluna);
             }

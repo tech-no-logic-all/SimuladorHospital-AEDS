@@ -23,6 +23,12 @@ public class SimuladorHospital {
     private Enfermeira[] enfermeiras;
     private Medico[] medicos;
 
+    private boolean relogioIniciado = false;
+    private boolean pausado = false;
+
+    private float tempoSimulacao = 0;
+    private int ultimoMillisReal = 0;
+
 
     public SimuladorHospital() {
         grid = new Grid();
@@ -35,7 +41,6 @@ public class SimuladorHospital {
 
     public void setup() {
         grid.inicializarImagens();
-        proximoSpawn = geradorTempo.gerarTempoSpawn();
     }
 
     //esse iniciarGrid acho q tem que receber uma string pro caminho do arquivo do mapa .txt
@@ -60,12 +65,55 @@ public class SimuladorHospital {
         grid.desenharGrid();
     }
 
-    public void atualizarEntidades(float tempoAtual) {
+    //chamado quando o botão de iniciar simulação for clicado
+    public void iniciarSimulacao() {
+
+        if (!inicializado) {
+            println("Não é possível iniciar antes de carregar o grid.");
+            return;
+        }
+
+        tempoSimulacao = 0;
+
+        // Define o instante real usado como referência.
+        ultimoMillisReal = millis();
+
+        // Primeira atualização pode acontecer imediatamente.
+        tempoAtualizarSimulacao = 0;
+
+        // Agenda o primeiro paciente usando o tempo lógico.
+        proximoSpawn = tempoSimulacao + geradorTempo.gerarTempoSpawn();
+
+        relogioIniciado = true;
+        pausado = false;
+    }
+
+    //quando o botão de pausar simulação for clicado
+    public void pausarSimulacao() {
+        if (!relogioIniciado) {
+            return;
+        }
+
+        pausado = true;
+    }
+
+    //quando o botão de despausar simulação for clicado
+    public void continuarSimulacao() {
+        if (!relogioIniciado) {
+            return;
+        }
+
+        // Descarta todo o tempo real transcorrido durante a pausa.
+        ultimoMillisReal = millis();
+
+        pausado = false;
+    }
+
+    public void atualizarEntidades(float tempoSimulacao) {
         if (!inicializado) 
         return;
 
-        if (tempoAtual >= proximoSpawn) {
-            contadorPacientes++;
+        if (tempoSimulacao >= proximoSpawn) {
             Paciente novoPaciente = new Paciente("P" + contadorPacientes);
 
             //pra que serve essa condicao? 
@@ -76,29 +124,49 @@ public class SimuladorHospital {
                 int linhaT = grid.getTotem().getLinha();
                 int colunaT = grid.getTotem().getColuna();
 
+                contadorPacientes++;
+
                 novoPaciente.setPosicao(linhaG, colunaG);
                 novoPaciente.setDestino(linhaT, colunaT);
 
                 gerenciadorMovimento.registrarPosicaoInicial(novoPaciente, linhaG, colunaG);
                 listaPacientes.adicionar(novoPaciente);
 
-                proximoSpawn = tempoAtual + geradorTempo.gerarTempoSpawn();
+                proximoSpawn = tempoSimulacao + geradorTempo.gerarTempoSpawn();
             }
         }
     }
 
-    public void atualizarSimulacao(float tempoAtual) {
+    public void atualizarSimulacao() {
+        if (!relogioIniciado || !inicializado) {
+            return;
+        }
 
-        if (tempoAtual >= tempoAtualizarSimulacao) {
+        int agora = millis();
+
+        float delta =
+            (agora - ultimoMillisReal) / 1000.0;
+
+        ultimoMillisReal = agora;
+
+        if (pausado) {
+            return;
+        }
+
+        tempoSimulacao += delta;
+
+        if (tempoSimulacao >= tempoAtualizarSimulacao) {
+            atualizarEntidades(tempoSimulacao);
+
             Paciente[] pacientes = listaPacientes.listaPacientesParaArray();
 
             gerenciadorMovimento.atualizarMovimentacao(pacientes);
-            atualizarEntidades(tempoAtual);
 
-            tempoAtualizarSimulacao = tempoAtual + tempoEntreAtualizacoes;
+            processarPacientes(pacientes);
+
+            tempoAtualizarSimulacao = tempoSimulacao + tempoEntreAtualizacoes;
         }
     }
-
 
     public void processarChegadaTotem(Paciente paciente) {
         if(paciente.getEstado() == EstadoPaciente.INDO_TOTEM && paciente.chegouAoDestino()) {
@@ -191,11 +259,11 @@ public class SimuladorHospital {
         return coordenadasLivre[0];
     }
 
-    public void chamarProximoTriagem(Paciente paciente) {
+    public void chamarProximoTriagem() {
         
         for(int i = 0; i < enfermeiras.length; i++) {
             if(enfermeiras[i].estado == EstadoProfissional.LIVRE) {
-                paciente = FilasPreferencial.chamarProximo();
+                Paciente paciente = FilasPreferencial.chamarProximo();
 
                 if (paciente != null) {
 
@@ -214,16 +282,16 @@ public class SimuladorHospital {
         }
     }
 
-    public void processarChegadaTriagem(Paciente paciente, float tempoAtual) {
+    public void processarChegadaTriagem(Paciente paciente) {
 
         if(paciente.getEstado() == EstadoPaciente.INDO_TRIAGEM && paciente.chegouAoDestino()) {
 
             paciente.setEstado(EstadoPaciente.EM_TRIAGEM);
-            paciente.iniciarTriagem(tempoAtual);
+            paciente.iniciarTriagem(tempoSimulacao);
         }
     }
 
-    public void processarFimTriagem(Paciente paciente, float tempoAtual) {
+    public void processarFimTriagem(Paciente paciente) {
 
         if(paciente.getEstado() == EstadoPaciente.EM_TRIAGEM && (tempoAtual - paciente.getTempoInicioTriagem() >= paciente.getDuracaoTriagem())) {
 
@@ -286,12 +354,59 @@ public class SimuladorHospital {
         }
     }
 
-    public void processarChegadaConsulta(Paciente paciente, float tempoAtual) {
+    public void processarChegadaConsulta(Paciente paciente) {
 
         if(paciente.getEstado() == EstadoPaciente.INDO_CONSULTA && paciente.chegouAoDestino()) {
 
             paciente.setEstado(EstadoPaciente.EM_CONSULTA);
-            paciente.iniciarConsulta(tempoAtual);
+            paciente.iniciarConsulta(tempoSimulacao);
         }
+    }
+
+    private void processarPacientes(Paciente[] pacientes) {
+        for (int i = 0; i < pacientes.length; i++) {
+            Paciente paciente = pacientes[i];
+
+            processarChegadaTotem(paciente);
+            processarChegadaCadeiraTriagem(paciente);
+            processarChegadaTriagem(paciente);
+            processarFimTriagem(paciente);
+            processarChegadaCadeiraConsulta(paciente);
+            processarChegadaConsulta(paciente);
+
+            if (grid.getRemovedor() != null) {
+                Coordenada coordenadaRemovedor =
+                    new Coordenada(grid.getRemovedor().getLinha(), grid.getRemovedor().getColuna());
+
+                paciente.atualizar(tempoSimulacao, coordenadaRemovedor, listaPacientes);
+            }
+        }
+
+        chamarProximoTriagem();
+        chamarProximoConsulta();
+    }
+
+    //quando a simulacao for resetada
+    public void resetarRelogio() {
+        tempoSimulacao = 0;
+        tempoAtualizarSimulacao = 0;
+        proximoSpawn = 0;
+
+        ultimoMillisReal = millis();
+
+        relogioIniciado = false;
+        pausado = true;
+    }
+
+    public boolean estaPausado() {
+        return pausado;
+    }
+
+    public boolean estaIniciada() {
+        return relogioIniciado;
+    }
+
+    public float getTempoSimulacao() {
+        return tempoSimulacao;
     }
 }

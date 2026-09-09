@@ -35,8 +35,6 @@ void draw() {
     
     background(255);
 
-    float tempoAtual = millis() / 1000.0;
-
     //esse iniciarGrid acho q tem que mandar uma string pro caminho do arquivo do mapa .txt
     //simulador.iniciarGrid();
     
@@ -47,5 +45,5 @@ void draw() {
     tudo com a verificacao de tempo */
     
     //simulador.atualizarEntidades(tempoAtual);
-    simulador.atualizarSimulacao(tempoAtual);
+    simulador.atualizarSimulacao();
 }
