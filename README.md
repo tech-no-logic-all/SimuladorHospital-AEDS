@@ -3,5 +3,6 @@ Desenvolver uma aplicação visual no ambiente Processing (modo Java) que simule
 
 <div align="center">
   <p><b>Execução em curso:</b></p>
-  <img src="https://github.com/user-attachments/assets/9ebf9581-ef85-4dcb-8a87-d715d826a07b.gif" alt="Demonstração do Simulador" width="650">
+  <img <img width="709" height="709" alt="mais certo" src="https://github.com/user-attachments/assets/38bf70fd-2834-4eb3-b684-995ec4a3f6ed" />
+>
 </div>
